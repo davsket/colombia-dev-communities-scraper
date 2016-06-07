@@ -14,6 +14,7 @@ app.engine('lodash', function (filePath, options, callback) {
 app.set('views', './views');
 app.set('view engine', 'lodash');
 
+const PORT = process.env.PORT || 5000;
 const COMMUNITIES = ['bogotajs', 'medellinjs', 'calijs', 'manizalesjs', 'monteriajs', 'barranquillajs', 'armeniajs', 'popayanjs', 'bucaramangajs'];
 var lastQuery, 
     lastQueryDate;
@@ -34,6 +35,6 @@ app.get('/', function (req, res) {
   })
 });
 
-app.listen(3005, function () {
-  console.log('Example app listening on port 3000!');
+app.listen(PORT, function () {
+  console.log(`Example app listening on port ${PORT}!`);
 });
