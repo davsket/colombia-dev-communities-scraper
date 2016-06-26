@@ -1,8 +1,13 @@
 const fs      = require('fs');
 const express = require('express');
 const _       = require('lodash');
+const cors    = require('cors')
 const app     = express();
 const meetup  = require('./meetup');
+const url     = require('url');
+
+
+app.use(cors());
 
 app.engine('lodash', function (filePath, options, callback) {
   fs.readFile(filePath, function (err, content) {
@@ -15,24 +20,39 @@ app.set('views', './views');
 app.set('view engine', 'lodash');
 
 const PORT = process.env.PORT || 5000;
-const COMMUNITIES = ['bogotajs', 'medellinjs', 'calijs', 'manizalesjs', 'monteriajs', 'barranquillajs', 'armeniajs', 'popayanjs', 'bucaramangajs'];
-var lastQuery, 
-    lastQueryDate;
+const COMMUNITIES = ['bogotajs', 'medellinjs', 'calijs', 'manizalesjs', 'monteriajs', 'barranquillajs', 'armeniajs', 'popayanjs', 'bucaramangajs'].join(',');
+var lastQuery = {}, 
+    lastQueryDate = {};
+
+
+function handleRequestQuery(req) {
+  const params = url.parse(request.url, true);
+  const communities = params.communities || COMMUNITIES;
+  const communitiesArr = communities.split(',')
+  const now = Date.now();
+  if (!lastQueryDate[communities]) {
+    lastQueryDate[communities] = now;
+    lastQuery[communities] = meetup.fetchCommunities(communitiesArr);
+  }
+  else if (lastQueryDate[communities] + (60 * 60 * 1000) < now) { // every Hour
+    console.log('<< cache')
+    lastQuery[communities] = meetup.fetchCommunities(communitiesArr);
+  }
+  return lastQuery[communities]
+}
 
 app.get('/', function (req, res) {
-  const now = Date.now();
-  if (!lastQueryDate) {
-    lastQueryDate = now;
-    lastQuery = meetup.fetchCommunities(COMMUNITIES);
-  }
-  else if (lastQueryDate + (60 * 60 * 1000) < now) { // every Hour
-    console.log('<< cache')
-    lastQuery = meetup.fetchCommunities(COMMUNITIES);
-  }
-  lastQuery.then(meetups => {
-    console.log(meetups)
-    res.render('index', { meetups: _.sortBy(meetups, 'members').reverse() });
-  })
+  handleRequestQuery(req)
+    .then(meetups => {
+      res.render('index', { meetups: _.sortBy(meetups, 'members').reverse() });
+    })
+});
+
+app.get('/json', function (req, res) {
+  handleRequestQuery(req)
+    .then(meetups => {
+      res.json({ meetups: _.sortBy(meetups, 'members').reverse() });
+    })
 });
 
 app.listen(PORT, function () {
