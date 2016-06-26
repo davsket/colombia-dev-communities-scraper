@@ -26,7 +26,7 @@ var lastQuery = {},
 
 
 function handleRequestQuery(req) {
-  const params = url.parse(request.url, true);
+  const params = url.parse(req.url, true);
   const communities = params.communities || COMMUNITIES;
   const communitiesArr = communities.split(',')
   const now = Date.now();
