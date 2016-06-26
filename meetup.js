@@ -13,7 +13,10 @@ const fetchCommunity = (comunity) => {
       if (response.status >= 400) {
         throw new Error('Bad response from server');
       }
-      return response.json();
+      return response.json().then(communityJSON => {
+        communityJSON.queryId = comunity;
+        return communityJSON;
+      });
     })
 };
 
