@@ -26,8 +26,8 @@ var lastQuery = {},
 
 
 function handleRequestQuery(req) {
-  const params = url.parse(req.url, true);
-  const communities = params.communities || COMMUNITIES;
+  const communities = req.query.meetups || COMMUNITIES;
+  console.log(communities);
   const communitiesArr = communities.split(',')
   const now = Date.now();
   if (!lastQueryDate[communities]) {
@@ -45,14 +45,14 @@ app.get('/', function (req, res) {
   handleRequestQuery(req)
     .then(meetups => {
       res.render('index', { meetups: _.sortBy(meetups, 'members').reverse() });
-    })
+    }).catch(err => res.render(err))
 });
 
 app.get('/json', function (req, res) {
   handleRequestQuery(req)
     .then(meetups => {
       res.json({ meetups: _.sortBy(meetups, 'members').reverse() });
-    })
+    }).catch(err => res.render(err))
 });
 
 app.listen(PORT, function () {

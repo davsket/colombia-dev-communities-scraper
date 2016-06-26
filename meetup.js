@@ -8,16 +8,25 @@ if (!MEETUP_API_KEY) {
 }
 
 const fetchCommunity = (comunity) => {
-  return fetch(MEEUTP_URL(comunity))
-    .then( response => {
-      if (response.status >= 400) {
-        throw new Error('Bad response from server');
-      }
-      return response.json().then(communityJSON => {
-        communityJSON.queryId = comunity;
-        return communityJSON;
-      });
-    })
+  return new Promise(resolve => {
+    setTimeout(() => {
+      console.log('before!', comunity)
+      fetch(MEEUTP_URL(comunity))
+        .then( response => {
+          console.log('X-RateLimit-Limit!', response.headers.get('X-RateLimit-Limit'))
+          console.log('X-RateLimit-Remaining!', response.headers.get('X-RateLimit-Remaining'))
+          console.log('fetched!', response.statusText)
+          if (response.status >= 400) {
+            throw new Error('Bad response from server:' + response.statusText);
+          }
+          response.json().then(communityJSON => {
+            console.log('one!', comunity)
+            communityJSON.queryId = comunity;
+            resolve(communityJSON);
+          });
+        });
+    }, 1000);
+  });
 };
 
 const fetchCommunities = (communities) => {
