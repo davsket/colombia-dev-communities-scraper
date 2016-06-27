@@ -52,6 +52,7 @@ const dirtyFetchCommunity = (community) => {
             thumb_link: `http://photos3.meetupstatic.com/photos/event/9/e/6/7/thumb_${groupPhotoId}.jpeg`
           }
         },
+        queryId: community,
         scrapped: true
       };
     })
