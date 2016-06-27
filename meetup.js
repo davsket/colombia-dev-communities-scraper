@@ -25,8 +25,10 @@ const dirtyFetchCommunity = (community) => {
     .then(html => {
       const $ = cheerio.load(html);
       const $organizer = $('#meta-leaders').children().first();
-      var organizerPhotoId = $('#meta-org-photo img').attr('src').match(/(\d+)\.\w+$/);
-      var groupPhotoId = $('#C_metabox .photo').attr('src').match(/(\d+)\.\w+$/);
+      var organizerPhoto = $('#meta-org-photo img').attr('src') || null;
+      var organizerPhotoId = organizerPhoto && $('#meta-org-photo img').attr('src').match(/(\d+)\.\w+$/);
+      var groupPhoto = $('#C_metabox .photo').attr('src') || null;
+      var groupPhotoId = groupPhoto && $('#C_metabox .photo').attr('src').match(/(\d+)\.\w+$/);
       organizerPhotoId = organizerPhotoId && organizerPhotoId[1];
       groupPhotoId = groupPhotoId && groupPhotoId[1];
 
@@ -39,13 +41,13 @@ const dirtyFetchCommunity = (community) => {
         organizer: {
           name: $organizer.text(),
           id: $organizer.data('id'),
-          photo: {
+          photo: organizerPhotoId && {
             id: organizerPhotoId,
             highres_link: `http://photos3.meetupstatic.com/photos/member/7/3/1/6/highres_${organizerPhotoId}.jpeg`,
             photo_link: `http://photos3.meetupstatic.com/photos/member/7/3/1/6/600_${organizerPhotoId}.jpeg`,
             thumb_link: `http://photos3.meetupstatic.com/photos/member/7/3/1/6/thumb_${organizerPhotoId}.jpeg`
           },
-          group_photo: {
+          group_photo: groupPhotoId && {
             id: groupPhotoId,
             highres_link: `http://photos3.meetupstatic.com/photos/event/9/e/6/7/highres_${groupPhotoId}.jpeg`,
             photo_link: `http://photos3.meetupstatic.com/photos/event/9/e/6/7/600_${groupPhotoId}.jpeg`,
